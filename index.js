@@ -28,6 +28,34 @@ const server = http.createServer(async (req, res) => {
       res.end('Not Found\n');
     }
   } 
+  else if (req.method === 'PUT') {
+    let test = [];
+        req.on('data', chunk => {test.push(chunk);})
+        req.on('end', async () => {test = Buffer.concat(test);
+            try {
+                await fs.writeFile(filePath, test);
+                res.writeHead(201);
+                res.end('Created');
+            } catch (err) {
+                res.writeHead(404);
+                res.end('Not Found');
+            }
+    });
+  } 
+  else if (req.method === 'DELETE') {
+    try {
+      await fs.unlink(filePath);
+      res.writeHead(200);
+      res.end('Deleted\n');
+    } catch (error) {
+      res.writeHead(404);
+      res.end('Not Found\n');
+    }
+  } 
+  else {
+    res.writeHead(405);
+    res.end('Method Not Allowed\n');
+  }
 });
 
 server.listen(port, host, () => {
